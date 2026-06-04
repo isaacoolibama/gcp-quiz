@@ -5,6 +5,7 @@ import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebas
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Users, CheckCircle, Percent, LogOut, Lock, Trash2, BarChart2, List, Share2 } from 'lucide-react';
 import Footer from './Footer';
+import { questionsData } from './Quiz';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
@@ -241,6 +242,27 @@ export default function AdminDashboard() {
                 </ResponsiveContainer>
               </div>
             </div>
+          <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden mt-6">
+            <div className="px-4 py-3 border-b border-slate-800">
+              <h3 className="text-base font-semibold text-white">Questões do Quiz</h3>
+            </div>
+            <div className="divide-y divide-slate-800">
+              {questionsData.map((q, i) => (
+                <div key={q.id} className="p-4">
+                  <p className="text-xs font-bold text-indigo-400 mb-1">Q{i + 1}</p>
+                  <p className="text-sm text-slate-300 mb-2 leading-relaxed">{q.question}</p>
+                  <div className="space-y-1">
+                    {q.options.map((opt, j) => (
+                      <div key={j} className={`text-xs px-3 py-1.5 rounded-lg ${j === q.correctIndex ? 'bg-emerald-500/15 text-emerald-400 font-semibold' : 'text-slate-500'}`}>
+                        {String.fromCharCode(65 + j)}. {opt}
+                        {j === q.correctIndex && <span className="ml-2 text-emerald-500">✓ Correta</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
           </>
         )}
 

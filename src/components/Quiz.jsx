@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import confetti from 'canvas-confetti';
 import { db } from '../firebaseConfig';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { CheckCircle, XCircle, ChevronRight, Award, Lightbulb, ClipboardList } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronRight, Award, Lightbulb } from 'lucide-react';
 import Footer from './Footer';
 
 const PHRASES = [
@@ -22,7 +23,7 @@ const PHRASES = [
   "Você não come só para sobreviver — você come para viver melhor. Parabéns pela consciência!"
 ];
 
-const questionsData = [
+export const questionsData = [
   {
     id: 1,
     question: "Durante a nossa atividade de 'detetive dos rótulos', descobrimos que o açúcar pode se esconder nas embalagens com vários nomes. Qual das opções abaixo representa um desses 'açúcares ocultos'?",
@@ -68,7 +69,7 @@ const questionsData = [
     question: "Na nossa degustação, valorizamos os frutos regionais. Por que consumir frutas da nossa própria região é uma escolha excelente?",
     options: ["Porque são fabricadas com conservantes especiais", "Porque costumam ser mais frescas, nutritivas e apoiam a economia local", "Porque possuem a mesma composição de um refrigerante zero"],
     correctIndex: 1,
-    hint: "Pense nas vantagens de consumir algo produzido perto de onde você mora, sem precisar percorrer longas distâncias.",
+    hint: "Pense nas vantagens de consumir algo produzido perto de onde você mora, sem percorrer longas distâncias.",
     explanation: "Frutas regionais chegam mais frescas, sem precisar de conservantes para transporte. São adaptadas ao clima local, geralmente mais nutritivas, e seu consumo fortalece a economia da comunidade."
   },
   {
@@ -106,27 +107,76 @@ const questionsData = [
 ];
 
 const scoreInfo = (score) => {
-  if (score >= 9) return { label: 'Excelente!', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/30' };
-  if (score >= 7) return { label: 'Muito Bom!', color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/30' };
-  if (score >= 5) return { label: 'Bom Trabalho!', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/30' };
-  return { label: 'Continue Aprendendo!', color: 'text-orange-400', bg: 'bg-orange-500/10 border-orange-500/30' };
+  if (score >= 9) return { label: 'Excelente!', color: 'text-emerald-400' };
+  if (score >= 7) return { label: 'Muito Bom!', color: 'text-blue-400' };
+  if (score >= 5) return { label: 'Bom Trabalho!', color: 'text-amber-400' };
+  return { label: 'Continue Aprendendo!', color: 'text-orange-400' };
 };
 
-// mode: 'quiz' | 'review' | 'finished'
+function FinishedScreen({ score, phrase }) {
+  const info = scoreInfo(score);
+  const corretas = score;
+  const incorretas = 10 - score;
+
+  useEffect(() => {
+    const end = Date.now() + 3500;
+    const colors = ['#10b981', '#6366f1', '#f59e0b', '#ec4899', '#ffffff'];
+    const frame = () => {
+      confetti({ particleCount: 4, angle: 60, spread: 70, origin: { x: 0 }, colors });
+      confetti({ particleCount: 4, angle: 120, spread: 70, origin: { x: 1 }, colors });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    };
+    frame();
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-purple-900 flex flex-col items-center justify-center p-4 pb-16 text-white">
+      <div className="w-full max-w-sm space-y-4">
+        <div className="text-center">
+          <Award className="mx-auto text-amber-400 mb-3" size={56} />
+          <h2 className="text-3xl font-bold">Parabéns!</h2>
+          <p className="text-purple-200 mt-1 text-sm">Você completou o questionário</p>
+        </div>
+
+        <div className="bg-white/10 border border-white/20 rounded-2xl p-5 backdrop-blur-sm">
+          <p className="text-xs text-purple-300 uppercase font-semibold text-center mb-3">Seu total de acertos</p>
+          <p className="text-center">
+            <span className={`text-6xl font-black ${info.color}`}>{score}</span>
+            <span className="text-2xl text-white/50"> / 10</span>
+          </p>
+          <div className="grid grid-cols-2 gap-3 mt-4">
+            <div className="bg-emerald-500/20 border border-emerald-500/30 rounded-xl p-3 text-center">
+              <CheckCircle className="mx-auto text-emerald-400 mb-1" size={20} />
+              <p className="text-2xl font-black text-emerald-400">{corretas}</p>
+              <p className="text-xs text-emerald-300/70 uppercase font-medium mt-0.5">Corretas</p>
+            </div>
+            <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-3 text-center">
+              <XCircle className="mx-auto text-red-400 mb-1" size={20} />
+              <p className="text-2xl font-black text-red-400">{incorretas}</p>
+              <p className="text-xs text-red-300/70 uppercase font-medium mt-0.5">Incorretas</p>
+            </div>
+          </div>
+        </div>
+
+        <p className="text-center text-sm text-purple-200">✓ Suas respostas foram salvas e enviadas.</p>
+      </div>
+      <Footer light />
+    </div>
+  );
+}
+
 export default function Quiz() {
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [answers, setAnswers] = useState({});       // { [questionId]: { selectedIdx, isCorrect } }
+  const [answers, setAnswers] = useState({});
   const [selectedIdx, setSelectedIdx] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [mode, setMode] = useState('quiz');
-  const [revisiting, setRevisiting] = useState(false);
+  const [finished, setFinished] = useState(false);
   const [sending, setSending] = useState(false);
+  const [finalScore, setFinalScore] = useState(0);
   const [phrase] = useState(() => PHRASES[Math.floor(Math.random() * PHRASES.length)]);
 
   const currentQuestion = questionsData[currentIdx];
   const isLast = currentIdx + 1 >= questionsData.length;
-  const allAnswered = Object.keys(answers).length === questionsData.length;
-  const score = Object.values(answers).filter(a => a.isCorrect).length;
 
   const handleSelect = (optionIdx) => {
     if (showFeedback || sending) return;
@@ -136,46 +186,20 @@ export default function Quiz() {
     setAnswers(prev => ({ ...prev, [currentQuestion.id]: { selectedIdx: optionIdx, isCorrect } }));
   };
 
-  const handleNext = () => {
-    if (revisiting) {
-      setMode('review');
-      setRevisiting(false);
+  const handleNext = async () => {
+    if (!isLast) {
+      setCurrentIdx(i => i + 1);
       setSelectedIdx(null);
       setShowFeedback(false);
       return;
     }
-    if (!isLast) {
-      const nextQ = questionsData[currentIdx + 1];
-      const existing = answers[nextQ.id];
-      setCurrentIdx(i => i + 1);
-      setSelectedIdx(existing?.selectedIdx ?? null);
-      setShowFeedback(!!existing);
-    } else {
-      setMode('review');
-    }
-  };
-
-  const visitQuestion = (idx) => {
-    const q = questionsData[idx];
-    const existing = answers[q.id];
-    setCurrentIdx(idx);
-    setSelectedIdx(existing?.selectedIdx ?? null);
-    setShowFeedback(!!existing);
-    setRevisiting(true);
-    setMode('quiz');
-  };
-
-  const changeAnswer = () => {
-    setSelectedIdx(null);
-    setShowFeedback(false);
-  };
-
-  const finalize = async () => {
-    setSending(true);
+    const updatedAnswers = { ...answers };
+    const score = Object.values(updatedAnswers).filter(a => a.isCorrect).length;
     const userAnswers = questionsData.map(q => ({
       questionId: q.id,
-      isCorrect: answers[q.id]?.isCorrect ?? false
+      isCorrect: updatedAnswers[q.id]?.isCorrect ?? false
     }));
+    setSending(true);
     try {
       await addDoc(collection(db, "quiz_responses"), {
         score,
@@ -185,8 +209,9 @@ export default function Quiz() {
     } catch (err) {
       console.error("Erro ao enviar:", err);
     }
+    setFinalScore(score);
     setSending(false);
-    setMode('finished');
+    setFinished(true);
   };
 
   const optionStyle = (i) => {
@@ -198,86 +223,20 @@ export default function Quiz() {
     return `${base} border-slate-700/30 text-slate-600 cursor-default`;
   };
 
-  // ── Sending ──────────────────────────────────────────────────────
   if (sending) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-purple-900 flex items-center justify-center p-4 text-white">
-        <p className="text-xl animate-pulse">Enviando respostas...</p>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-purple-900 flex flex-col items-center justify-center gap-4 p-4 text-white">
+        <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+        <p className="text-lg font-medium animate-pulse">Salvando respostas...</p>
         <Footer light />
       </div>
     );
   }
 
-  // ── Finished ─────────────────────────────────────────────────────
-  if (mode === 'finished') {
-    const info = scoreInfo(score);
-    const corretas = score;
-    const incorretas = questionsData.length - score;
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-purple-900 flex flex-col items-center justify-center p-4 pb-16 text-white">
-        <div className="w-full max-w-sm space-y-4">
-          <div className="text-center">
-            <Award className="mx-auto text-amber-400 mb-3" size={56} />
-            <h2 className="text-3xl font-bold">Parabéns!</h2>
-            <p className="text-purple-200 mt-1 text-sm">Você completou o questionário</p>
-          </div>
-
-          <div className="bg-white/10 border border-white/20 rounded-2xl p-5 backdrop-blur-sm">
-            <p className="text-xs text-purple-300 uppercase font-semibold text-center mb-3">Seu total de acertos</p>
-            <p className="text-center">
-              <span className={`text-6xl font-black ${info.color}`}>{score}</span>
-              <span className="text-2xl text-white/50"> / 10</span>
-            </p>
-            <div className="grid grid-cols-2 gap-3 mt-4">
-              <div className="bg-emerald-500/20 border border-emerald-500/30 rounded-xl p-3 text-center">
-                <CheckCircle className="mx-auto text-emerald-400 mb-1" size={20} />
-                <p className="text-2xl font-black text-emerald-400">{corretas}</p>
-                <p className="text-xs text-emerald-300/70 uppercase font-medium mt-0.5">Corretas</p>
-              </div>
-              <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-3 text-center">
-                <XCircle className="mx-auto text-red-400 mb-1" size={20} />
-                <p className="text-2xl font-black text-red-400">{incorretas}</p>
-                <p className="text-xs text-red-300/70 uppercase font-medium mt-0.5">Incorretas</p>
-              </div>
-            </div>
-          </div>
-
-          <p className="text-center text-sm text-purple-200">
-            ✓ Suas respostas foram salvas e enviadas.
-          </p>
-        </div>
-        <Footer light />
-      </div>
-    );
+  if (finished) {
+    return <FinishedScreen score={finalScore} phrase={phrase} />;
   }
 
-  // ── Review ───────────────────────────────────────────────────────
-  if (mode === 'review') {
-    return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-3 sm:p-4 pb-16">
-        <div className="w-full max-w-sm my-auto">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 text-center shadow-xl space-y-4">
-            <ClipboardList className="mx-auto text-indigo-400" size={40} />
-            <div>
-              <h2 className="text-lg font-bold text-white">Tudo respondido!</h2>
-              <p className="text-slate-400 text-sm mt-1">Pronto para enviar suas respostas?</p>
-            </div>
-            <button
-              onClick={finalize}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm sm:text-base"
-              style={{ minHeight: '48px' }}
-            >
-              <CheckCircle size={18} />
-              Finalizar e Enviar
-            </button>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  // ── Quiz ─────────────────────────────────────────────────────────
   const isCorrectAnswer = selectedIdx === currentQuestion.correctIndex;
   const progress = ((currentIdx + 1) / questionsData.length) * 100;
 
@@ -328,7 +287,6 @@ export default function Quiz() {
             ))}
           </div>
 
-          {/* Hint — shown before answering */}
           {!showFeedback && (
             <div className="rounded-xl p-3 border border-amber-500/20 bg-amber-500/5 flex gap-2 items-start">
               <Lightbulb size={15} className="text-amber-400 shrink-0 mt-0.5" />
@@ -336,7 +294,6 @@ export default function Quiz() {
             </div>
           )}
 
-          {/* Explanation — shown after answering */}
           {showFeedback && (
             <div className={`rounded-xl p-3 border ${isCorrectAnswer ? 'bg-emerald-500/10 border-emerald-500/40' : 'bg-red-500/10 border-red-500/40'}`}>
               <p className={`text-xs sm:text-sm font-bold mb-1 ${isCorrectAnswer ? 'text-emerald-400' : 'text-red-400'}`}>
@@ -345,14 +302,6 @@ export default function Quiz() {
               <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
                 {currentQuestion.explanation}
               </p>
-              {revisiting && (
-                <button
-                  onClick={changeAnswer}
-                  className="mt-2 text-xs text-indigo-400 hover:text-indigo-300 underline underline-offset-2"
-                >
-                  Alterar resposta
-                </button>
-              )}
             </div>
           )}
         </div>
@@ -363,7 +312,7 @@ export default function Quiz() {
             className="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold py-3.5 flex items-center justify-center gap-2 transition-colors text-sm sm:text-base"
             style={{ minHeight: '48px' }}
           >
-            {revisiting ? 'Voltar ao Resumo' : isLast ? 'Revisar Respostas' : 'Próxima Questão'}
+            {isLast ? 'Ver Resultado' : 'Próxima Questão'}
             <ChevronRight size={18} />
           </button>
         )}
