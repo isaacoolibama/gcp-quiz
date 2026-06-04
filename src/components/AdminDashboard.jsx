@@ -83,7 +83,7 @@ export default function AdminDashboard() {
   if (!user) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-        <div className="bg-slate-800 p-6 md:p-8 rounded-2xl shadow-xl w-full max-w-sm border border-slate-700">
+        <div className="bg-slate-800 p-6 md:p-8 rounded-2xl shadow-xl w-full max-w-sm border border-slate-700 mb-12">
           <div className="flex justify-center mb-5 text-emerald-400"><Lock size={44} /></div>
           <h2 className="text-xl font-bold text-center text-white mb-6">Painel Administrativo</h2>
           <form onSubmit={handleLogin} className="space-y-4">
@@ -112,7 +112,6 @@ export default function AdminDashboard() {
             </button>
           </form>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -184,7 +183,7 @@ export default function AdminDashboard() {
         </button>
       </div>
 
-      <div className="p-4 md:p-8">
+      <div className="p-4 md:p-8 pb-16">
 
         {/* Stats Tab */}
         {activeTab === 'stats' && (
@@ -304,7 +303,6 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
-      <Footer />
     </div>
   );
 }
