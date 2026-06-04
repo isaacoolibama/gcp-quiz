@@ -119,7 +119,7 @@ function FinishedScreen({ score, phrase }) {
   const incorretas = 10 - score;
 
   useEffect(() => {
-    const end = Date.now() + 3500;
+    const end = Date.now() + 2500;
     const colors = ['#10b981', '#6366f1', '#f59e0b', '#ec4899', '#ffffff'];
     const frame = () => {
       confetti({ particleCount: 4, angle: 60, spread: 70, origin: { x: 0 }, colors });
