@@ -134,8 +134,7 @@ export default function AdminDashboard() {
       {/* Header */}
       <header className="bg-slate-900 border-b border-slate-800 px-4 py-4 flex items-center justify-between sticky top-0 z-10">
         <div className="min-w-0">
-          <h1 className="text-base md:text-xl font-bold text-white truncate">Painel — Educação Alimentar e Nutricional</h1>
-          <p className="text-slate-400 text-xs mt-0.5 hidden sm:block">Transgênicos, autonomia e escolhas saudáveis entre adolescentes</p>
+          <h1 className="text-base md:text-xl font-bold text-white truncate">Dashboard — Educação Alimentar e Nutricional</h1>
         </div>
         <div className="flex items-center gap-2 ml-3 shrink-0">
           <button
