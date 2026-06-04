@@ -121,7 +121,7 @@ export default function Quiz() {
             <span className="text-sm block text-purple-300 uppercase font-semibold">Seu total de acertos</span>
             <span className="text-5xl font-black text-emerald-400">{score} <span className="text-2xl text-white">/10</span></span>
           </div>
-          <p className="text-xs text-purple-300">Suas respostas foram salvas e enviadas para o painel do professor.</p>
+          <p className="text-xs text-purple-300">Suas respostas foram salvas e enviadas para o painel da professora.</p>
         </div>
         <div className="w-full max-w-md mt-4"><Footer light /></div>
       </div>
