@@ -197,7 +197,7 @@ export default function Quiz() {
           </div>
 
           <p className="text-center text-sm text-purple-200">
-            ✓ Suas respostas foram salvas e enviadas para o painel da professora.
+            ✓ Suas respostas foram salvas e enviadas.
           </p>
         </div>
         <Footer light />
