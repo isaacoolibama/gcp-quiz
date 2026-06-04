@@ -2,14 +2,13 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
-// ⚠️ SUBSTITUA OS VALORES ABAIXO COM AS CREDENCIAIS DO SEU PROJETO FIREBASE
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY_AQUI",
-  authDomain: "SEU_AUTH_DOMAIN.firebaseapp.com",
-  projectId: "SEU_PROJECT_ID",
-  storageBucket: "SEU_STORAGE_BUCKET.appspot.com",
-  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-  appId: "SEU_APP_ID"
+  apiKey: "AIzaSyA8Hpxi4rrDvxEiT-TOEcL9CiSG0oKnQKc",
+  authDomain: "gcp-quiz-bdfb7.firebaseapp.com",
+  projectId: "gcp-quiz-bdfb7",
+  storageBucket: "gcp-quiz-bdfb7.firebasestorage.app",
+  messagingSenderId: "32158765717",
+  appId: "1:32158765717:web:4e4b2be286a067e0f9c19c"
 };
 
 const app = initializeApp(firebaseConfig);
