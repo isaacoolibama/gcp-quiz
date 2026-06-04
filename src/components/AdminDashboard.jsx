@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../firebaseConfig';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Users, CheckCircle, Percent, LogOut, Lock } from 'lucide-react';
+import { Users, CheckCircle, Percent, LogOut, Lock, Trash2, BarChart2, List } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [stats, setStats] = useState({ totalParticipants: 0, avgScore: 0, questionData: [] });
+  const [responses, setResponses] = useState([]);
+  const [activeTab, setActiveTab] = useState('stats');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
@@ -19,11 +21,17 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (!user) return;
     const unsubscribe = onSnapshot(collection(db, "quiz_responses"), (snapshot) => {
-      const data = snapshot.docs.map(doc => doc.data());
+      const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      setResponses(data);
       calculateStats(data);
     });
     return () => unsubscribe();
   }, [user]);
+
+  const handleDelete = async (id) => {
+    if (!confirm("Deletar esta resposta?")) return;
+    await deleteDoc(doc(db, "quiz_responses", id));
+  };
 
   const calculateStats = (data) => {
     const total = data.length;
@@ -79,7 +87,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-10">
-      <header className="flex justify-between items-center mb-8 border-b border-slate-800 pb-5">
+      <header className="flex justify-between items-center mb-6 border-b border-slate-800 pb-5">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">GCP — Painel de Extensão</h1>
           <p className="text-slate-400 text-sm mt-1">Acompanhamento estatístico em tempo real</p>
@@ -89,46 +97,120 @@ export default function AdminDashboard() {
         </button>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex items-center gap-5">
-          <div className="p-4 bg-blue-500/10 text-blue-400 rounded-lg"><Users size={28} /></div>
-          <div>
-            <p className="text-sm font-medium text-slate-400 uppercase">Respostas Recebidas</p>
-            <p className="text-3xl font-bold text-white mt-1">{stats.totalParticipants}</p>
-          </div>
-        </div>
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex items-center gap-5">
-          <div className="p-4 bg-emerald-500/10 text-emerald-400 rounded-lg"><Percent size={28} /></div>
-          <div>
-            <p className="text-sm font-medium text-slate-400 uppercase">Taxa Média de Acerto</p>
-            <p className="text-3xl font-bold text-white mt-1">{stats.avgScore}%</p>
-          </div>
-        </div>
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex items-center gap-5">
-          <div className="p-4 bg-amber-500/10 text-amber-400 rounded-lg"><CheckCircle size={28} /></div>
-          <div>
-            <p className="text-sm font-medium text-slate-400 uppercase">Média de Acertos / Aluno</p>
-            <p className="text-3xl font-bold text-white mt-1">{((stats.avgScore * 10) / 100).toFixed(1)} / 10</p>
-          </div>
-        </div>
+      <div className="flex gap-2 mb-8">
+        <button
+          onClick={() => setActiveTab('stats')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition duration-200 ${activeTab === 'stats' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
+        >
+          <BarChart2 size={16} /> Estatísticas
+        </button>
+        <button
+          onClick={() => setActiveTab('responses')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition duration-200 ${activeTab === 'responses' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
+        >
+          <List size={16} /> Respostas ({responses.length})
+        </button>
       </div>
 
-      <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-md">
-        <h3 className="text-lg font-semibold text-white mb-6">Mapeamento Analítico por Questão</h3>
-        <div className="w-full h-96">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={stats.questionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis dataKey="name" stroke="#94a3b8" />
-              <YAxis stroke="#94a3b8" allowDecimals={false} />
-              <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#fff' }} />
-              <Legend />
-              <Bar dataKey="Corretas" fill="#10b981" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Incorretas" fill="#ef4444" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+      {activeTab === 'stats' && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex items-center gap-5">
+              <div className="p-4 bg-blue-500/10 text-blue-400 rounded-lg"><Users size={28} /></div>
+              <div>
+                <p className="text-sm font-medium text-slate-400 uppercase">Respostas Recebidas</p>
+                <p className="text-3xl font-bold text-white mt-1">{stats.totalParticipants}</p>
+              </div>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex items-center gap-5">
+              <div className="p-4 bg-emerald-500/10 text-emerald-400 rounded-lg"><Percent size={28} /></div>
+              <div>
+                <p className="text-sm font-medium text-slate-400 uppercase">Taxa Média de Acerto</p>
+                <p className="text-3xl font-bold text-white mt-1">{stats.avgScore}%</p>
+              </div>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex items-center gap-5">
+              <div className="p-4 bg-amber-500/10 text-amber-400 rounded-lg"><CheckCircle size={28} /></div>
+              <div>
+                <p className="text-sm font-medium text-slate-400 uppercase">Média de Acertos / Aluno</p>
+                <p className="text-3xl font-bold text-white mt-1">{((stats.avgScore * 10) / 100).toFixed(1)} / 10</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-md">
+            <h3 className="text-lg font-semibold text-white mb-6">Mapeamento Analítico por Questão</h3>
+            <div className="w-full h-96">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.questionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                  <XAxis dataKey="name" stroke="#94a3b8" />
+                  <YAxis stroke="#94a3b8" allowDecimals={false} />
+                  <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#fff' }} />
+                  <Legend />
+                  <Bar dataKey="Corretas" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Incorretas" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </>
+      )}
+
+      {activeTab === 'responses' && (
+        <div className="bg-slate-900 border border-slate-800 rounded-xl shadow-md overflow-hidden">
+          {responses.length === 0 ? (
+            <p className="text-slate-400 text-center py-16">Nenhuma resposta recebida ainda.</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-800 text-slate-400 uppercase text-xs">
+                  <th className="text-left p-4">Data/Hora</th>
+                  <th className="text-left p-4">Acertos</th>
+                  <th className="text-left p-4">Detalhes</th>
+                  <th className="text-right p-4">Ação</th>
+                </tr>
+              </thead>
+              <tbody>
+                {responses.map((r) => (
+                  <tr key={r.id} className="border-b border-slate-800/50 hover:bg-slate-800/40 transition-colors">
+                    <td className="p-4 text-slate-300">
+                      {r.submittedAt ? new Date(r.submittedAt.seconds * 1000).toLocaleString('pt-BR') : '—'}
+                    </td>
+                    <td className="p-4">
+                      <span className={`font-bold text-lg ${r.score >= 7 ? 'text-emerald-400' : r.score >= 5 ? 'text-amber-400' : 'text-red-400'}`}>
+                        {r.score}/10
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex gap-1 flex-wrap">
+                        {r.answers?.map((a, i) => (
+                          <span
+                            key={i}
+                            title={`Q${i + 1}`}
+                            className={`w-6 h-6 rounded text-xs flex items-center justify-center font-bold ${a.isCorrect ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}
+                          >
+                            {i + 1}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="p-4 text-right">
+                      <button
+                        onClick={() => handleDelete(r.id)}
+                        className="text-slate-500 hover:text-red-400 transition-colors p-1 rounded"
+                        title="Deletar resposta"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
-      </div>
+      )}
     </div>
   );
 }
