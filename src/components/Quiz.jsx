@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { db } from '../firebaseConfig';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { CheckCircle, XCircle, ChevronRight, Award } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronRight, Award, Lightbulb, ClipboardList, RotateCcw } from 'lucide-react';
 import Footer from './Footer';
 
 const PHRASES = [
@@ -28,13 +28,15 @@ const questionsData = [
     question: "Durante a nossa atividade de 'detetive dos rótulos', descobrimos que o açúcar pode se esconder nas embalagens com vários nomes. Qual das opções abaixo representa um desses 'açúcares ocultos'?",
     options: ["Xarope de milho rico em frutose", "Cloreto de sódio", "Fibra alimentar"],
     correctIndex: 0,
-    explanation: "O xarope de milho rico em frutose é um adoçante industrializado muito usado em ultraprocessados. Os fabricantes usam esse nome justamente para que o consumidor não reconheça o açúcar na lista de ingredientes."
+    hint: "Pense em nomes alternativos que a indústria usa para esconder ingredientes conhecidos nos rótulos.",
+    explanation: "O xarope de milho rico em frutose é um adoçante industrializado muito usado em ultraprocessados. Os fabricantes usam esse nome para que o consumidor não reconheça o açúcar na lista de ingredientes."
   },
   {
     id: 2,
     question: "Nas embalagens dos lanches, o que significa encontrar um triângulo amarelo com a letra 'T' preta no centro?",
     options: ["Que o produto é livre de gorduras tóxicas", "Que o produto contém ingredientes transgênicos", "Que o produto deve ser consumido apenas à tarde"],
     correctIndex: 1,
+    hint: "Pense nos símbolos obrigatórios nas embalagens brasileiras que identificam modificações genéticas nos alimentos.",
     explanation: "O triângulo amarelo com 'T' é o símbolo obrigatório no Brasil para alimentos transgênicos (geneticamente modificados). Saber reconhecê-lo nos rótulos é fundamental para fazer escolhas conscientes!"
   },
   {
@@ -42,6 +44,7 @@ const questionsData = [
     question: "Como uma noite de sono ruim ou o uso excessivo de celular antes de dormir afetam as nossas escolhas alimentares no dia seguinte?",
     options: ["Eles desregulam os hormônios, aumentando a fome emocional por ultraprocessados", "Eles fazem o corpo exigir apenas frutas frescas", "Eles não possuem nenhuma relação com a nossa fome"],
     correctIndex: 0,
+    hint: "Pense em como o cansaço e a falta de sono afetam seus hormônios e suas escolhas durante o dia.",
     explanation: "Dormir mal eleva o cortisol e reduz a leptina (hormônio da saciedade), aumentando a grelina (hormônio da fome). Isso faz o corpo buscar energia rápida em ultraprocessados, ricos em açúcar e gordura."
   },
   {
@@ -49,6 +52,7 @@ const questionsData = [
     question: "O que melhor define a 'fome emocional' que debatemos nas dinâmicas interativas?",
     options: ["A necessidade física do corpo após 6 horas sem comer", "Vontade exclusiva de comer frutos regionais", "Comer para tentar aliviar sentimentos como tédio, ansiedade ou estresse"],
     correctIndex: 2,
+    hint: "Pense na diferença entre comer por necessidade do corpo e comer para lidar com sentimentos.",
     explanation: "A fome emocional surge de repente, foca em alimentos específicos (geralmente ultraprocessados) e está ligada a emoções como estresse, tédio ou ansiedade — não à necessidade real de nutrientes do corpo."
   },
   {
@@ -56,6 +60,7 @@ const questionsData = [
     question: "O desafio 'Descascar mais, Desembalar menos' trouxe uma proposta importante. Qual é o objetivo principal desse lema?",
     options: ["Priorizar alimentos naturais e menos processados", "Aprender técnicas rápidas para abrir embalagens", "Comer apenas a casca das frutas e descartar a polpa"],
     correctIndex: 0,
+    hint: "Pense em qual grupo de alimentos precisa ser descascado — e qual precisa ser desembalado.",
     explanation: "O lema incentiva o consumo de alimentos in natura — frutas, legumes, verduras — em vez de produtos industrializados embalados, que geralmente contêm aditivos, excesso de sódio e açúcar."
   },
   {
@@ -63,6 +68,7 @@ const questionsData = [
     question: "Na nossa degustação, valorizamos os frutos regionais. Por que consumir frutas da nossa própria região é uma escolha excelente?",
     options: ["Porque são fabricadas com conservantes especiais", "Porque costumam ser mais frescas, nutritivas e apoiam a economia local", "Porque possuem a mesma composição de um refrigerante zero"],
     correctIndex: 1,
+    hint: "Pense nas vantagens de consumir algo produzido perto de onde você mora, sem precisar percorrer longas distâncias.",
     explanation: "Frutas regionais chegam mais frescas, sem precisar de conservantes para transporte. São adaptadas ao clima local, geralmente mais nutritivas, e seu consumo fortalece a economia da comunidade."
   },
   {
@@ -70,6 +76,7 @@ const questionsData = [
     question: "Na oficina de hidratação, aprendemos que a meta de água é individual. Como calcular a quantidade ideal por dia?",
     options: ["Bebendo exatamente 10 litros de água por dia", "Esperando ter a boca seca para tomar um único copo", "Multiplicando o seu próprio peso corporal (em kg) por 35 ml de água"],
     correctIndex: 2,
+    hint: "Lembre-se: a necessidade de água varia de pessoa para pessoa, de acordo com o peso de cada um.",
     explanation: "A fórmula recomendada é: peso (kg) × 35 ml. Exemplo: uma pessoa de 60 kg deve beber aproximadamente 2.100 ml (2,1 litros) por dia. A boca seca é sinal de desidratação — não espere chegar lá!"
   },
   {
@@ -77,6 +84,7 @@ const questionsData = [
     question: "O que significa praticar o 'Mindful Eating' (comer com atenção plena) que exercitamos na última oficina?",
     options: ["Prestar atenção real ao sabor, textura, mastigando devagar e sem distrações de telas", "Comer o mais rápido possível para jogar no computador", "Decorar a tabela nutricional de todos os alimentos antes de comer"],
     correctIndex: 0,
+    hint: "Pense em estar completamente presente durante a refeição, sem distrações, sentindo cada sabor.",
     explanation: "Comer com atenção plena significa estar presente na refeição: perceber sabores, cheiros e texturas, mastigar devagar e evitar distrações. Isso melhora a digestão e evita o excesso alimentar."
   },
   {
@@ -84,6 +92,7 @@ const questionsData = [
     question: "Por que fomos orientados a deixar o smartphone e as telas longe do prato na hora das refeições?",
     options: ["Porque as telas nos distraem, fazendo a gente comer rápido e sem perceber a saciedade", "Porque o sinal do Wi-Fi queima as vitaminas presentes na comida quente", "Porque mexer na tela queima calorias em excesso antes de mastigar"],
     correctIndex: 0,
+    hint: "Pense em como a atenção dividida entre telas e comida pode afetar o que e quanto você ingere.",
     explanation: "Quando estamos distraídos com telas, o cérebro não registra corretamente os sinais de saciedade. Resultado: comemos mais rápido, em maior quantidade, sem perceber quando estamos satisfeitos."
   },
   {
@@ -91,6 +100,7 @@ const questionsData = [
     question: "Se quisermos aplicar o aprendizado de todas as oficinas na nossa rotina, qual seria a melhor atitude para o lanche da escola?",
     options: ["Trocar o almoço por dois pacotes de salgadinho industrializado", "Levar uma fruta regional, garrafa de água para seu peso e comer com atenção plena", "Ficar sem comer nada o dia inteiro e focar apenas nas redes sociais"],
     correctIndex: 1,
+    hint: "Pense em qual alternativa combina os três pilares aprendidos: alimentação natural, hidratação e atenção plena.",
     explanation: "Uma fruta regional oferece vitaminas e fibras, a garrafa de água garante hidratação adequada, e comer com atenção plena permite perceber a saciedade. Essa combinação resume todo o aprendizado da atividade!"
   }
 ];
@@ -102,34 +112,70 @@ const scoreInfo = (score) => {
   return { label: 'Continue Aprendendo!', color: 'text-orange-400', bg: 'bg-orange-500/10 border-orange-500/30' };
 };
 
+// mode: 'quiz' | 'review' | 'finished'
 export default function Quiz() {
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [userAnswers, setUserAnswers] = useState([]);
+  const [answers, setAnswers] = useState({});       // { [questionId]: { selectedIdx, isCorrect } }
   const [selectedIdx, setSelectedIdx] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [quizFinished, setQuizFinished] = useState(false);
-  const [score, setScore] = useState(0);
+  const [mode, setMode] = useState('quiz');
+  const [revisiting, setRevisiting] = useState(false);
   const [sending, setSending] = useState(false);
   const [phrase] = useState(() => PHRASES[Math.floor(Math.random() * PHRASES.length)]);
 
+  const currentQuestion = questionsData[currentIdx];
+  const isLast = currentIdx + 1 >= questionsData.length;
+  const allAnswered = Object.keys(answers).length === questionsData.length;
+  const score = Object.values(answers).filter(a => a.isCorrect).length;
+
   const handleSelect = (optionIdx) => {
     if (showFeedback || sending) return;
-    const isCorrect = optionIdx === questionsData[currentIdx].correctIndex;
+    const isCorrect = optionIdx === currentQuestion.correctIndex;
     setSelectedIdx(optionIdx);
     setShowFeedback(true);
-    if (isCorrect) setScore(s => s + 1);
-    setUserAnswers(prev => [...prev, { questionId: questionsData[currentIdx].id, isCorrect }]);
+    setAnswers(prev => ({ ...prev, [currentQuestion.id]: { selectedIdx: optionIdx, isCorrect } }));
   };
 
-  const handleNext = async () => {
-    const isLast = currentIdx + 1 >= questionsData.length;
-    if (!isLast) {
-      setCurrentIdx(i => i + 1);
+  const handleNext = () => {
+    if (revisiting) {
+      setMode('review');
+      setRevisiting(false);
       setSelectedIdx(null);
       setShowFeedback(false);
       return;
     }
+    if (!isLast) {
+      const nextQ = questionsData[currentIdx + 1];
+      const existing = answers[nextQ.id];
+      setCurrentIdx(i => i + 1);
+      setSelectedIdx(existing?.selectedIdx ?? null);
+      setShowFeedback(!!existing);
+    } else {
+      setMode('review');
+    }
+  };
+
+  const visitQuestion = (idx) => {
+    const q = questionsData[idx];
+    const existing = answers[q.id];
+    setCurrentIdx(idx);
+    setSelectedIdx(existing?.selectedIdx ?? null);
+    setShowFeedback(!!existing);
+    setRevisiting(true);
+    setMode('quiz');
+  };
+
+  const changeAnswer = () => {
+    setSelectedIdx(null);
+    setShowFeedback(false);
+  };
+
+  const finalize = async () => {
     setSending(true);
+    const userAnswers = questionsData.map(q => ({
+      questionId: q.id,
+      isCorrect: answers[q.id]?.isCorrect ?? false
+    }));
     try {
       await addDoc(collection(db, "quiz_responses"), {
         score,
@@ -140,18 +186,19 @@ export default function Quiz() {
       console.error("Erro ao enviar:", err);
     }
     setSending(false);
-    setQuizFinished(true);
+    setMode('finished');
   };
 
   const optionStyle = (i) => {
-    const base = 'w-full text-left border p-4 rounded-xl font-medium transition-all duration-150';
-    if (!showFeedback) return `${base} bg-slate-700/50 hover:bg-indigo-600/30 border-slate-600/70 hover:border-indigo-500 text-slate-200 hover:text-white active:scale-[0.99]`;
-    const correct = questionsData[currentIdx].correctIndex;
+    const base = 'w-full text-left border p-3 sm:p-4 rounded-xl font-medium transition-all duration-150';
+    if (!showFeedback) return `${base} bg-slate-700/50 hover:bg-indigo-600/30 border-slate-600/70 hover:border-indigo-500 text-slate-200 active:scale-[0.99]`;
+    const correct = currentQuestion.correctIndex;
     if (i === correct) return `${base} bg-emerald-500/15 border-emerald-500 text-emerald-300`;
     if (i === selectedIdx) return `${base} bg-red-500/15 border-red-500 text-red-300`;
     return `${base} border-slate-700/30 text-slate-600 cursor-default`;
   };
 
+  // ── Sending ──────────────────────────────────────────────────────
   if (sending) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-purple-900 flex items-center justify-center p-4 text-white">
@@ -161,14 +208,14 @@ export default function Quiz() {
     );
   }
 
-  if (quizFinished) {
+  // ── Finished ─────────────────────────────────────────────────────
+  if (mode === 'finished') {
     const info = scoreInfo(score);
-    const corretas = userAnswers.filter(a => a.isCorrect).length;
-    const incorretas = userAnswers.length - corretas;
+    const corretas = score;
+    const incorretas = questionsData.length - score;
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-purple-900 flex flex-col items-center justify-center p-4 pb-16 text-white">
         <div className="w-full max-w-sm space-y-4">
-
           <div className="text-center">
             <Award className="mx-auto text-amber-400 mb-3" size={56} />
             <h2 className="text-3xl font-bold">Parabéns!</h2>
@@ -181,7 +228,6 @@ export default function Quiz() {
               <span className={`text-6xl font-black ${info.color}`}>{score}</span>
               <span className="text-2xl text-white/50"> / 10</span>
             </p>
-
             <div className="grid grid-cols-2 gap-3 mt-4">
               <div className="bg-emerald-500/20 border border-emerald-500/30 rounded-xl p-3 text-center">
                 <CheckCircle className="mx-auto text-emerald-400 mb-1" size={20} />
@@ -205,16 +251,64 @@ export default function Quiz() {
     );
   }
 
-  const currentQuestion = questionsData[currentIdx];
-  const progress = ((currentIdx + 1) / questionsData.length) * 100;
+  // ── Review ───────────────────────────────────────────────────────
+  if (mode === 'review') {
+    return (
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-3 sm:p-4 pb-16">
+        <div className="w-full max-w-lg my-auto space-y-3">
+          <div className="text-center mb-1">
+            <ClipboardList className="mx-auto text-indigo-400 mb-2" size={36} />
+            <h2 className="text-lg font-bold text-white">Revise suas respostas</h2>
+            <p className="text-slate-400 text-xs mt-1">Toque em uma questão para revisá-la antes de finalizar</p>
+          </div>
+
+          <div className="space-y-2">
+            {questionsData.map((q, idx) => {
+              const ans = answers[q.id];
+              return (
+                <button
+                  key={q.id}
+                  onClick={() => visitQuestion(idx)}
+                  className="w-full flex items-center gap-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl p-3 text-left transition-colors"
+                  style={{ minHeight: '48px' }}
+                >
+                  <span className={`w-7 h-7 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold ${
+                    !ans ? 'bg-slate-600 text-slate-400' :
+                    ans.isCorrect ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
+                  }`}>
+                    {!ans ? idx + 1 : ans.isCorrect ? '✓' : '✗'}
+                  </span>
+                  <span className="text-xs sm:text-sm text-slate-300 line-clamp-2 flex-1">{q.question}</span>
+                  <RotateCcw size={14} className="text-slate-500 shrink-0" />
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            onClick={finalize}
+            disabled={!allAnswered}
+            className="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm sm:text-base"
+            style={{ minHeight: '48px' }}
+          >
+            <CheckCircle size={18} />
+            Finalizar e Enviar
+          </button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // ── Quiz ─────────────────────────────────────────────────────────
   const isCorrectAnswer = selectedIdx === currentQuestion.correctIndex;
-  const isLast = currentIdx + 1 >= questionsData.length;
+  const progress = ((currentIdx + 1) / questionsData.length) * 100;
 
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col justify-center items-center p-3 sm:p-4 pb-16">
       <div className="bg-slate-800 rounded-2xl max-w-2xl w-full border border-slate-700 shadow-xl overflow-hidden my-auto">
-
         <div className="p-4 md:p-6">
+
           <div className="flex justify-between items-center mb-3">
             <span className="text-xs font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full">
               Quiz — Atividade de Extensão
@@ -224,18 +318,15 @@ export default function Quiz() {
             </span>
           </div>
 
-          <div className="w-full bg-slate-700 h-1.5 rounded-full mb-5 overflow-hidden">
-            <div
-              className="bg-indigo-500 h-full transition-all duration-500 ease-out"
-              style={{ width: `${progress}%` }}
-            />
+          <div className="w-full bg-slate-700 h-1.5 rounded-full mb-4 overflow-hidden">
+            <div className="bg-indigo-500 h-full transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
           </div>
 
           <h2 className="text-sm sm:text-base md:text-lg font-bold text-white mb-4 leading-relaxed">
             {currentQuestion.question}
           </h2>
 
-          <div className="space-y-2 mb-4">
+          <div className="space-y-2 mb-3">
             {currentQuestion.options.map((opt, i) => (
               <button
                 key={i}
@@ -260,14 +351,31 @@ export default function Quiz() {
             ))}
           </div>
 
+          {/* Hint — shown before answering */}
+          {!showFeedback && (
+            <div className="rounded-xl p-3 border border-amber-500/20 bg-amber-500/5 flex gap-2 items-start">
+              <Lightbulb size={15} className="text-amber-400 shrink-0 mt-0.5" />
+              <p className="text-xs text-amber-200/80 leading-relaxed">{currentQuestion.hint}</p>
+            </div>
+          )}
+
+          {/* Explanation — shown after answering */}
           {showFeedback && (
-            <div className={`rounded-xl p-3 sm:p-4 border mb-3 ${isCorrectAnswer ? 'bg-emerald-500/10 border-emerald-500/40' : 'bg-red-500/10 border-red-500/40'}`}>
+            <div className={`rounded-xl p-3 border ${isCorrectAnswer ? 'bg-emerald-500/10 border-emerald-500/40' : 'bg-red-500/10 border-red-500/40'}`}>
               <p className={`text-xs sm:text-sm font-bold mb-1 ${isCorrectAnswer ? 'text-emerald-400' : 'text-red-400'}`}>
                 {isCorrectAnswer ? '✓ Isso mesmo!' : '✗ Não foi dessa vez'}
               </p>
               <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
                 {currentQuestion.explanation}
               </p>
+              {revisiting && (
+                <button
+                  onClick={changeAnswer}
+                  className="mt-2 text-xs text-indigo-400 hover:text-indigo-300 underline underline-offset-2"
+                >
+                  Alterar resposta
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -275,10 +383,10 @@ export default function Quiz() {
         {showFeedback && (
           <button
             onClick={handleNext}
-            className="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold py-3.5 sm:py-4 flex items-center justify-center gap-2 transition-colors text-sm sm:text-base"
+            className="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold py-3.5 flex items-center justify-center gap-2 transition-colors text-sm sm:text-base"
             style={{ minHeight: '48px' }}
           >
-            {isLast ? 'Ver Resultado' : 'Próxima Questão'}
+            {revisiting ? 'Voltar ao Resumo' : isLast ? 'Revisar Respostas' : 'Próxima Questão'}
             <ChevronRight size={18} />
           </button>
         )}
