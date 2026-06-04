@@ -211,7 +211,7 @@ export default function Quiz() {
   const isLast = currentIdx + 1 >= questionsData.length;
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-start justify-center p-4 pb-16 pt-6">
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 pb-16">
       <div className="bg-slate-800 rounded-2xl max-w-2xl w-full border border-slate-700 shadow-xl overflow-hidden">
 
         <div className="p-5 md:p-7">

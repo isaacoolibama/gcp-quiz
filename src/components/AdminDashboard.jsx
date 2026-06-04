@@ -112,7 +112,8 @@ export default function AdminDashboard() {
             </button>
           </form>
         </div>
-      </div>
+      <Footer />
+    </div>
     );
   }
 
@@ -303,6 +304,7 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }
