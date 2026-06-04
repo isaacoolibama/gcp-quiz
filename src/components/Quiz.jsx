@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { db } from '../firebaseConfig';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { Award } from 'lucide-react';
+import Footer from './Footer';
 
 const questionsData = [
   {
@@ -102,15 +103,16 @@ export default function Quiz() {
 
   if (sending && currentIdx + 1 >= questionsData.length) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-purple-900 flex items-center justify-center p-4 text-white">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-purple-900 flex flex-col items-center justify-center p-4 text-white">
         <p className="text-xl animate-pulse">Enviando respostas...</p>
+        <div className="absolute bottom-0 w-full"><Footer light /></div>
       </div>
     );
   }
 
   if (quizFinished) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-purple-900 flex items-center justify-center p-4 text-white">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-purple-900 flex flex-col items-center justify-center p-4 text-white">
         <div className="bg-white/10 backdrop-blur-md p-8 rounded-2xl max-w-md w-full text-center border border-white/20 shadow-2xl">
           <Award className="mx-auto text-amber-400 mb-4" size={64} />
           <h2 className="text-3xl font-bold mb-2">Parabéns!</h2>
@@ -121,6 +123,7 @@ export default function Quiz() {
           </div>
           <p className="text-xs text-purple-300">Suas respostas foram salvas e enviadas para o painel do professor.</p>
         </div>
+        <div className="w-full max-w-md mt-4"><Footer light /></div>
       </div>
     );
   }
@@ -129,11 +132,11 @@ export default function Quiz() {
   const progress = ((currentIdx + 1) / questionsData.length) * 100;
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4">
       <div className="bg-slate-800 p-6 md:p-8 rounded-2xl max-w-2xl w-full border border-slate-700 shadow-xl">
         <div className="flex justify-between items-center mb-4">
           <span className="text-xs font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full">
-            Oficina de Nutrição & Saúde
+            Atividade de Extensão
           </span>
           <span className="text-sm font-medium text-slate-400">
             {currentIdx + 1} / {questionsData.length}
@@ -166,6 +169,7 @@ export default function Quiz() {
           ))}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

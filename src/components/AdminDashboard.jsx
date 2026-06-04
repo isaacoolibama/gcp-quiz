@@ -4,6 +4,7 @@ import { collection, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Users, CheckCircle, Percent, LogOut, Lock, Trash2, BarChart2, List, Share2 } from 'lucide-react';
+import Footer from './Footer';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
@@ -68,7 +69,7 @@ export default function AdminDashboard() {
   const handleShare = async () => {
     const url = 'https://gcp-quiz.vercel.app';
     const shareData = {
-      title: 'Quiz GCP — Oficina de Nutrição & Saúde',
+      title: 'Quiz GCP — Atividade de Extensão',
       text: 'Responda o quiz da atividade de extensão!',
       url,
     };
@@ -111,6 +112,7 @@ export default function AdminDashboard() {
             </button>
           </form>
         </div>
+        <Footer />
       </div>
     );
   }
@@ -303,6 +305,7 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }
