@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { db } from '../firebaseConfig';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { CheckCircle, XCircle, ChevronRight, Award, Lightbulb, ClipboardList, RotateCcw } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronRight, Award, Lightbulb, ClipboardList } from 'lucide-react';
 import Footer from './Footer';
 
 const PHRASES = [
@@ -255,45 +255,22 @@ export default function Quiz() {
   if (mode === 'review') {
     return (
       <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-3 sm:p-4 pb-16">
-        <div className="w-full max-w-lg my-auto space-y-3">
-          <div className="text-center mb-1">
-            <ClipboardList className="mx-auto text-indigo-400 mb-2" size={36} />
-            <h2 className="text-lg font-bold text-white">Revise suas respostas</h2>
-            <p className="text-slate-400 text-xs mt-1">Toque em uma questão para revisá-la antes de finalizar</p>
+        <div className="w-full max-w-sm my-auto">
+          <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 text-center shadow-xl space-y-4">
+            <ClipboardList className="mx-auto text-indigo-400" size={40} />
+            <div>
+              <h2 className="text-lg font-bold text-white">Tudo respondido!</h2>
+              <p className="text-slate-400 text-sm mt-1">Pronto para enviar suas respostas?</p>
+            </div>
+            <button
+              onClick={finalize}
+              className="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm sm:text-base"
+              style={{ minHeight: '48px' }}
+            >
+              <CheckCircle size={18} />
+              Finalizar e Enviar
+            </button>
           </div>
-
-          <div className="space-y-2">
-            {questionsData.map((q, idx) => {
-              const ans = answers[q.id];
-              return (
-                <button
-                  key={q.id}
-                  onClick={() => visitQuestion(idx)}
-                  className="w-full flex items-center gap-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl p-3 text-left transition-colors"
-                  style={{ minHeight: '48px' }}
-                >
-                  <span className={`w-7 h-7 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold ${
-                    !ans ? 'bg-slate-600 text-slate-400' :
-                    ans.isCorrect ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
-                  }`}>
-                    {!ans ? idx + 1 : ans.isCorrect ? '✓' : '✗'}
-                  </span>
-                  <span className="text-xs sm:text-sm text-slate-300 line-clamp-2 flex-1">{q.question}</span>
-                  <RotateCcw size={14} className="text-slate-500 shrink-0" />
-                </button>
-              );
-            })}
-          </div>
-
-          <button
-            onClick={finalize}
-            disabled={!allAnswered}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm sm:text-base"
-            style={{ minHeight: '48px' }}
-          >
-            <CheckCircle size={18} />
-            Finalizar e Enviar
-          </button>
         </div>
         <Footer />
       </div>
