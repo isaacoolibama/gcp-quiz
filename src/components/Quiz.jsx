@@ -211,10 +211,10 @@ export default function Quiz() {
   const isLast = currentIdx + 1 >= questionsData.length;
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 pb-16">
-      <div className="bg-slate-800 rounded-2xl max-w-2xl w-full border border-slate-700 shadow-xl overflow-hidden">
+    <div className="min-h-screen bg-slate-900 flex flex-col justify-center items-center p-3 sm:p-4 pb-16">
+      <div className="bg-slate-800 rounded-2xl max-w-2xl w-full border border-slate-700 shadow-xl overflow-hidden my-auto">
 
-        <div className="p-5 md:p-7">
+        <div className="p-4 md:p-6">
           <div className="flex justify-between items-center mb-3">
             <span className="text-xs font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full">
               Quiz — Atividade de Extensão
@@ -231,20 +231,21 @@ export default function Quiz() {
             />
           </div>
 
-          <h2 className="text-base md:text-lg font-bold text-white mb-5 leading-snug">
+          <h2 className="text-sm sm:text-base md:text-lg font-bold text-white mb-4 leading-relaxed">
             {currentQuestion.question}
           </h2>
 
-          <div className="space-y-2.5 mb-4">
+          <div className="space-y-2 mb-4">
             {currentQuestion.options.map((opt, i) => (
               <button
                 key={i}
                 onClick={() => handleSelect(i)}
                 disabled={showFeedback}
                 className={optionStyle(i)}
+                style={{ minHeight: '48px' }}
               >
-                <span className="inline-flex items-center gap-3">
-                  <span className={`w-7 h-7 flex-shrink-0 rounded-full text-sm font-bold flex items-center justify-center transition-colors ${
+                <span className="inline-flex items-center gap-2.5">
+                  <span className={`w-7 h-7 flex-shrink-0 rounded-full text-xs font-bold flex items-center justify-center transition-colors ${
                     showFeedback && i === currentQuestion.correctIndex ? 'bg-emerald-500 text-white' :
                     showFeedback && i === selectedIdx ? 'bg-red-500 text-white' :
                     'bg-slate-600 text-slate-300'
@@ -253,18 +254,18 @@ export default function Quiz() {
                      showFeedback && i === selectedIdx ? '✗' :
                      String.fromCharCode(65 + i)}
                   </span>
-                  {opt}
+                  <span className="text-sm sm:text-base">{opt}</span>
                 </span>
               </button>
             ))}
           </div>
 
           {showFeedback && (
-            <div className={`rounded-xl p-4 border mb-4 ${isCorrectAnswer ? 'bg-emerald-500/10 border-emerald-500/40' : 'bg-red-500/10 border-red-500/40'}`}>
-              <p className={`text-sm font-bold mb-1 ${isCorrectAnswer ? 'text-emerald-400' : 'text-red-400'}`}>
+            <div className={`rounded-xl p-3 sm:p-4 border mb-3 ${isCorrectAnswer ? 'bg-emerald-500/10 border-emerald-500/40' : 'bg-red-500/10 border-red-500/40'}`}>
+              <p className={`text-xs sm:text-sm font-bold mb-1 ${isCorrectAnswer ? 'text-emerald-400' : 'text-red-400'}`}>
                 {isCorrectAnswer ? '✓ Isso mesmo!' : '✗ Não foi dessa vez'}
               </p>
-              <p className="text-slate-300 text-sm leading-relaxed">
+              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
                 {currentQuestion.explanation}
               </p>
             </div>
@@ -274,10 +275,11 @@ export default function Quiz() {
         {showFeedback && (
           <button
             onClick={handleNext}
-            className="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold py-4 flex items-center justify-center gap-2 transition-colors text-base"
+            className="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold py-3.5 sm:py-4 flex items-center justify-center gap-2 transition-colors text-sm sm:text-base"
+            style={{ minHeight: '48px' }}
           >
             {isLast ? 'Ver Resultado' : 'Próxima Questão'}
-            <ChevronRight size={20} />
+            <ChevronRight size={18} />
           </button>
         )}
       </div>
