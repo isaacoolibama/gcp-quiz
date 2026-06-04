@@ -133,7 +133,7 @@ export default function AdminDashboard() {
       {/* Header */}
       <header className="bg-slate-900 border-b border-slate-800 px-4 py-4 flex items-center justify-between sticky top-0 z-10">
         <div className="min-w-0">
-          <h1 className="text-base md:text-xl font-bold text-white truncate">Dashboard — Educação Alimentar e Nutricional</h1>
+          <h1 className="text-base md:text-xl font-bold text-white truncate">Dashboard</h1>
         </div>
         <div className="flex items-center gap-2 ml-3 shrink-0">
           <button

@@ -136,7 +136,7 @@ export default function Quiz() {
       <div className="bg-slate-800 p-6 md:p-8 rounded-2xl max-w-2xl w-full border border-slate-700 shadow-xl">
         <div className="flex justify-between items-center mb-4">
           <span className="text-xs font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full">
-            Atividade de Extensão
+            Quiz — Atividade de Extensão
           </span>
           <span className="text-sm font-medium text-slate-400">
             {currentIdx + 1} / {questionsData.length}
