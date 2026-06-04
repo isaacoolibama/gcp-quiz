@@ -3,7 +3,7 @@ import { db, auth } from '../firebaseConfig';
 import { collection, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Users, CheckCircle, Percent, LogOut, Lock, Trash2, BarChart2, List } from 'lucide-react';
+import { Users, CheckCircle, Percent, LogOut, Lock, Trash2, BarChart2, List, Share2 } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
@@ -65,6 +65,20 @@ export default function AdminDashboard() {
     catch { alert("Acesso negado. Credenciais incorretas."); }
   };
 
+  const handleShare = async () => {
+    const url = 'https://gcp-quiz.vercel.app';
+    const shareData = {
+      title: 'Quiz GCP — Oficina de Nutrição & Saúde',
+      text: 'Responda o quiz da atividade de extensão!',
+      url,
+    };
+    if (navigator.share) {
+      try { await navigator.share(shareData); } catch {}
+    } else {
+      window.open(url, '_blank');
+    }
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
@@ -121,13 +135,23 @@ export default function AdminDashboard() {
           <h1 className="text-base md:text-xl font-bold text-white truncate">GCP — Painel de Extensão</h1>
           <p className="text-slate-400 text-xs mt-0.5 hidden sm:block">Acompanhamento em tempo real</p>
         </div>
-        <button
-          onClick={() => signOut(auth)}
-          className="flex items-center gap-1.5 bg-slate-800 hover:bg-red-900/40 hover:text-red-400 border border-slate-700 py-2 px-3 rounded-lg transition duration-200 text-sm ml-3 shrink-0"
-        >
-          <LogOut size={16} />
-          <span className="hidden sm:inline">Sair</span>
-        </button>
+        <div className="flex items-center gap-2 ml-3 shrink-0">
+          <button
+            onClick={handleShare}
+            className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white border border-indigo-500 py-2 px-3 rounded-lg transition duration-200 text-sm"
+            title="Compartilhar quiz"
+          >
+            <Share2 size={16} />
+            <span className="hidden sm:inline">Compartilhar</span>
+          </button>
+          <button
+            onClick={() => signOut(auth)}
+            className="flex items-center gap-1.5 bg-slate-800 hover:bg-red-900/40 hover:text-red-400 border border-slate-700 py-2 px-3 rounded-lg transition duration-200 text-sm"
+          >
+            <LogOut size={16} />
+            <span className="hidden sm:inline">Sair</span>
+          </button>
+        </div>
       </header>
 
       {/* Tabs */}
